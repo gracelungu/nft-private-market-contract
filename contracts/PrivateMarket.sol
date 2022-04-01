@@ -28,4 +28,12 @@ contract PrivateMarket is ERC721URIStorage {
     function getOwnerTokens() public view returns (uint256[] memory) {
         return tokenIdsByOwner[msg.sender];
     }
+
+    function getAddressTokens(address owner)
+        public
+        view
+        returns (uint256[] memory)
+    {
+        return tokenIdsByOwner[owner];
+    }
 }
