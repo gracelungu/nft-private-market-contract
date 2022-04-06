@@ -14,10 +14,12 @@ contract PrivateMarket is ERC721URIStorage {
         uint256 price;
         string name;
         string image;
+        uint256 tokenId;
     }
 
     TokenData[] tokensData;
     mapping(address => uint256[]) private ownerByTokenId;
+    mapping(uint256 => address) private tokenIdByOwner;
     mapping(uint256 => TokenData[]) private tokenIdByTokenData;
 
     constructor() ERC721("NFTPrivateMarket", "NFTPM") {
@@ -45,10 +47,17 @@ contract PrivateMarket is ERC721URIStorage {
 
         ownerByTokenId[msg.sender].push(currentId);
 
-        TokenData memory tokenData = TokenData(price, name, tokenURI);
+        TokenData memory tokenData = TokenData(
+            price,
+            name,
+            tokenURI,
+            currentId
+        );
         tokenIdByTokenData[currentId].push(tokenData);
 
         tokensData.push(tokenData);
+
+        tokenIdByOwner[currentId] = msg.sender;
 
         return currentId;
     }
@@ -77,11 +86,11 @@ contract PrivateMarket is ERC721URIStorage {
         return tokensData;
     }
 
-    function purchaseToken(address buyer, uint256 tokenId) public payable {
-        transferFrom(buyer, msg.sender, tokenId);
-        uint256 tempId = ownerByTokenId[buyer][tokenId];
+    function purchaseToken(uint256 tokenId) public returns (uint256) {
+        tokenIdByOwner[tokenId] = msg.sender;
 
-        delete ownerByTokenId[buyer][tokenId];
-        ownerByTokenId[msg.sender].push(tempId);
+        ownerByTokenId[msg.sender].push(tokenId);
+
+        return tokenId;
     }
 }
