@@ -21,7 +21,7 @@ contract PrivateMarket is ERC721URIStorage {
     struct Message {
         address sender;
         string message;
-        string date;
+        uint date;
     }
 
     // An array to store the data of all the tokens for a quick listing of all NFTs
@@ -121,6 +121,8 @@ contract PrivateMarket is ERC721URIStorage {
         // Get the token owner
         address owner = tokenIdByOwner[tokenId];
 
+        require(owner != msg.sender, "You cannot buy your own token");
+
         // Transfer the token
         _transfer(owner, msg.sender, tokenId);
         tokenIdByOwner[tokenId] = msg.sender;
@@ -136,10 +138,9 @@ contract PrivateMarket is ERC721URIStorage {
 
     function createMessage(
         uint256 tokenId,
-        string memory message,
-        string memory date
+        string memory message
     ) public ownsToken {
-        Message memory messageData = Message(msg.sender, message, date);
+        Message memory messageData = Message(msg.sender, message, block.timestamp);
         messages[tokenId].push(messageData);
     }
 
